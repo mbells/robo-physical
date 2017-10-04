@@ -21,6 +21,8 @@ eyeball_motor_pos=-30;
 slot_thickness=3;
 slot_length=40;
 
+bolt_dia=4;
+
 separation=3;
 
 $fn=100;
@@ -34,7 +36,7 @@ difference() {
         translate([-head_dia/4,0])
         square(size=[head_dia/2,head_dia],center=true);
     }
-    
+
     // Eyeball motors:
     motor9g(eyeball_motor_pos, -eyeball_motor_space1, 90);
     motor9g(eyeball_motor_pos,  eyeball_motor_space1, 90);
@@ -55,6 +57,18 @@ difference() {
 
     translate([50,0]) 
     square(size=[slot_thickness,slot_length],center=true);
+
+    // Eye mount:
+    lid_arm_thick=3;
+    plate_len=40;
+    bolt_offset=plate_len/2-lid_arm_thick*2;
+    translate([-head_dia/2+bolt_offset,0]) {
+        translate([0,-head_dia/4])
+        circle(d=bolt_dia, center = true);
+
+        translate([0,head_dia/4])
+        circle(d=bolt_dia, center = true);
+    }
 }
 
 // ---------- Motor dimensions:
@@ -63,12 +77,14 @@ module motor9g(x, y, r) {
     translate([x,y])
     rotate([0,0,r])
     translate([0,-center_dia * conduit_center]) square(size=[12,24],center=true);
+    // TODO bolt holes
 }
 
 module motorMG995(x, y, r) {
     translate([x,y])
     rotate([0,0,r])
     translate([0,-center_dia * conduit_center]) square(size=[20,41],center=true);
+    // TODO bolt holes
 }
 
 // ---------- Stands:
