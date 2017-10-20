@@ -8,20 +8,21 @@
 head_dia=150;
 
 stand_height=50;
-stand_length=50;
+stand_length=40;
 
 eyelid_motor_space1=15;
 eyelid_motor_space2=45;
 eyelid_motor_pos=15;
 
-eyeball_motor_space1=30;
-eyeball_motor_space2=50;
+eyeball_motor_space1=20;
+eyeball_motor_space2=40;
 eyeball_motor_pos=-30;
 
 slot_thickness=3;
-slot_length=40;
+slot_length=30;
 
-bolt_dia=4;
+bolt_pos=10;
+bolt_dia=5;
 
 separation=3;
 
@@ -52,17 +53,16 @@ difference() {
     motorMG995(eyelid_motor_pos,  eyelid_motor_space2, 90);
 
     // Stand:
-    translate([-40,0])
+    translate([-45,60])
+    square(size=[slot_length,slot_thickness],center=true);
+    translate([-45,-60])
     square(size=[slot_length,slot_thickness],center=true);
 
-    translate([50,0]) 
+    translate([55,0])
     square(size=[slot_thickness,slot_length],center=true);
 
     // Eye mount:
-    lid_arm_thick=3;
-    plate_len=40;
-    bolt_offset=plate_len/2-lid_arm_thick*2;
-    translate([-head_dia/2+bolt_offset,0]) {
+    translate([-head_dia/2+bolt_pos,0]) {
         translate([0,-head_dia/4])
         circle(d=bolt_dia, center = true);
 
