@@ -209,7 +209,6 @@ module eyeball_joint_inner_arm() {
 
 module lid_upper() {
     rotate([90,-90,0])
-    translate([0,0,axel_dia/2])
     rotate([0,-lids_open*45,0])
     {
         difference() {
@@ -217,26 +216,29 @@ module lid_upper() {
             sphere(r = lid_inner_dia/2);
 
             // Lower side
-            translate([0,0,-lid_outer_dia/2-axel_dia/2]) cube(size=lid_outer_dia, center = true);
+            translate([0,0,-lid_outer_dia/2]) cube(size=lid_outer_dia, center = true);
 
             // Upper side
+            translate([0,0,axel_dia])
             rotate([0,-45,0])
-            translate([0,0,lid_outer_dia/2+axel_dia/2]) cube(size=lid_outer_dia, center = true);
+            translate([0,0,lid_outer_dia/2]) cube(size=lid_outer_dia, center = true);
 
             // To be replaced by cylinder:
             translate([-lid_outer_dia/2,0,-outer_dia/2]) cube(size=lid_outer_dia, center = true);
-            rotate([0,45,0])
-            translate([-lid_outer_dia/2,0,-outer_dia/2]) cube(size=lid_outer_dia, center = true);
+            //rotate([0,45,0])
+            //translate([-lid_outer_dia/2,0,-outer_dia/2]) cube(size=lid_outer_dia, center = true);
         }
 
-        translate([0,lid_inner_dia/2+axel_len_outer+lid_thick,0])
+        // Outer axel:
+        translate([0,lid_inner_dia/2+axel_len_outer+lid_thick,axel_dia/2])
         rotate([90,0,0]) cylinder(h=axel_len_outer+lid_thick, r=axel_dia/2);
 
-        translate([0,-lid_inner_dia/2,0])
+        // Inner axel and arm:
+        translate([0,-lid_inner_dia/2,axel_dia/2])
         rotate([90,0,0]) cylinder(h=axel_len+lid_thick, r=axel_dia/2);
 
         rotate([0,90,0])
-        translate([-axel_len/2,-lid_outer_dia/2-axel_len+lid_arm_thick/2,0]) {
+        translate([-axel_len/2-axel_dia/2,-lid_outer_dia/2-axel_len+lid_arm_thick/2,0]) {
             difference() {
                 union() {
                     cube(size=[lid_arm_len,lid_arm_thick,axel_dia], center = true);
@@ -247,7 +249,7 @@ module lid_upper() {
                 cylinder(h=lid_arm_thick+epsilon, r=rod_dia/2, center = true);
             }
         }
-        translate([0,-lid_outer_dia/2-axel_len+lid_arm_thick/2,0])
+        translate([0,-lid_outer_dia/2-axel_len+lid_arm_thick/2,axel_dia/2])
         rotate([0,45,0])
         translate([-lid_arm_thick,0,0])
         cube(size=[lid_arm_thick*2,lid_arm_thick,axel_dia], center = true);
@@ -256,7 +258,6 @@ module lid_upper() {
 
 module lid_lower() {
     rotate([90,-90,0])
-    translate([0,0,-axel_dia/2])
     rotate([0,lids_open*45,0])
     {
         difference() {
@@ -264,26 +265,30 @@ module lid_lower() {
             sphere(r = lid_inner_dia/2);
 
             // Upper side
-            translate([0,0,lid_outer_dia/2+axel_dia/2]) cube(size=lid_outer_dia, center = true);
+            translate([0,0,lid_outer_dia/2+axel_dia/2-axel_dia/2]) cube(size=lid_outer_dia, center = true);
 
             // Lower side
+            translate([0,0,-axel_dia])
             rotate([0,45,0])
-            translate([0,0,-(lid_outer_dia/2+axel_dia/2)]) cube(size=lid_outer_dia, center = true);
+            translate([0,0,-lid_outer_dia/2])
+            cube(size=lid_outer_dia, center = true);
 
             // To be replaced by cylinder:
-            translate([-lid_outer_dia/2,0,lid_outer_dia/2]) cube(size=lid_outer_dia, center = true);
+            //translate([-lid_outer_dia/2,0,lid_outer_dia/2]) cube(size=lid_outer_dia, center = true);
             rotate([0,-45,0])
             translate([-lid_outer_dia/2,0,lid_outer_dia/2]) cube(size=lid_outer_dia, center = true);
         }
 
-        translate([0,lid_inner_dia/2+axel_len_outer+lid_thick,0])
+        // Outer axel:
+        translate([0,lid_inner_dia/2+axel_len_outer+lid_thick,-axel_dia/2])
         rotate([90,0,0]) cylinder(h=axel_len_outer+lid_thick, r=axel_dia/2);
 
-        translate([0,-lid_inner_dia/2,0])
+        // Inner axel and arm:
+        translate([0,-lid_inner_dia/2,-axel_dia/2])
         rotate([90,0,0]) cylinder(h=axel_len+lid_thick, r=axel_dia/2);
 
         rotate([0,-90,0])
-        translate([-axel_len/2,-lid_outer_dia/2-axel_len+lid_arm_thick/2,0]) {
+        translate([-axel_len/2-axel_dia/2,-lid_outer_dia/2-axel_len+lid_arm_thick/2,0]) {
             difference() {
                 union() {
                     cube(size=[lid_arm_len,lid_arm_thick,axel_dia], center = true);
@@ -294,7 +299,7 @@ module lid_lower() {
                 cylinder(h=lid_arm_thick+epsilon, r=rod_dia/2, center = true);
             }
         }
-        translate([0,-lid_outer_dia/2-axel_len+lid_arm_thick/2,0])
+        translate([0,-lid_outer_dia/2-axel_len+lid_arm_thick/2,-axel_dia/2])
         rotate([0,-45,0])
         translate([-lid_arm_thick,0,0])
         cube(size=[lid_arm_thick*2,lid_arm_thick,axel_dia], center = true);
