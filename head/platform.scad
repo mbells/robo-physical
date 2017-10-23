@@ -5,7 +5,9 @@
  * BSD3 license, see LICENSE.txt for details.
  */
 
-head_dia=150;
+// ---------- parameters ----------
+
+head_dia=170;
 
 stand_height=50;
 stand_length=40;
@@ -21,12 +23,37 @@ eyeball_motor_pos=-30;
 slot_thickness=3;
 slot_length=30;
 
-bolt_pos=10;
+bolt_to_edge=10;
 bolt_dia=5;
+bolt_head_dia=8;
 
 separation=3;
 
+// From other model:
+ball_dia=50;
+
+ball_lid_gap=1;
+lid_thick=2;
+
+axel_dia=5;
+
+
+// ----------
+
 $fn=100;
+
+// ---------- features
+// Major aspects, calculated from parameters
+
+lid_inner_dia=ball_dia+2*ball_lid_gap;
+lid_outer_dia=lid_inner_dia+2*lid_thick;
+
+knuckle_depth=axel_dia;
+
+bolt_outer=-lid_outer_dia/2-knuckle_depth/2+bolt_head_dia/2-knuckle_depth/2;
+bolt_inner=lid_outer_dia/2+knuckle_depth/2-bolt_head_dia/2+knuckle_depth/2;
+
+// ---------- build
 
 stands();
 
@@ -62,11 +89,24 @@ difference() {
     square(size=[slot_thickness,slot_length],center=true);
 
     // Eye mount:
-    translate([-head_dia/2+bolt_pos,0]) {
-        translate([0,-head_dia/4])
+    placement=head_dia/2+bolt_outer-2*bolt_dia;
+    translate([-head_dia/2,-placement]) {
+        eye_mount();
+    }
+    translate([-head_dia/2,placement]) {
+        mirror([0,1,0])
+        eye_mount();
+    }
+}
+
+module eye_mount() {
+    translate([bolt_to_edge,0]) {
         circle(d=bolt_dia, center = true);
 
-        translate([0,head_dia/4])
+        translate([0,bolt_outer])
+        circle(d=bolt_dia, center = true);
+
+        translate([0,bolt_inner])
         circle(d=bolt_dia, center = true);
     }
 }
@@ -76,14 +116,14 @@ difference() {
 module motor9g(x, y, r) {
     translate([x,y])
     rotate([0,0,r])
-    translate([0,-center_dia * conduit_center]) square(size=[12,24],center=true);
+    square(size=[12,24],center=true);
     // TODO bolt holes
 }
 
 module motorMG995(x, y, r) {
     translate([x,y])
     rotate([0,0,r])
-    translate([0,-center_dia * conduit_center]) square(size=[20,41],center=true);
+    square(size=[20,41],center=true);
     // TODO bolt holes
 }
 
