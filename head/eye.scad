@@ -5,6 +5,11 @@
  * BSD3 license, see LICENSE.txt for details.
  */
 
+/*
+TODO:
+lid rod connections on inside
+hinge on lids with rods
+*/
 // ---------- parameters ----------
 
 ball_dia=50;
@@ -30,13 +35,20 @@ hinge_arm_len=10;
 bolt_to_edge=10;
 plate_thick=3;
 
-rod_dia=2;
+rod_dia=2.7;
 bolt_dia=4;
 bolt_head_dia=8;
 
 // ----------
 
-lids_open=0;
+// Lid opening: range [0, 1]
+lids_open=0.5;
+
+// Assemble: 0 for printing, 1 for visualization
+assemble=1;
+
+// Mirror R/L eye: 0 or 1
+reflect=0;
 
 // ----------
 
@@ -60,6 +72,8 @@ plate_len=bolt_to_edge+bolt_head_dia+axel_dia;
 bolt_outer=-lid_outer_dia/2-knuckle_depth/2+bolt_head_dia/2-knuckle_depth/2;
 bolt_inner=lid_outer_dia/2+knuckle_depth/2-bolt_head_dia/2+knuckle_depth/2;
 
+rod_loose_dia=rod_dia+0.2;
+
 // Check bolt pos:
 //translate([bolt_inner,0,-hinge_arm_len-bolt_to_edge])
 //cube(size=[1,1,1], center = true);
@@ -69,13 +83,14 @@ bolt_inner=lid_outer_dia/2+knuckle_depth/2-bolt_head_dia/2+knuckle_depth/2;
 eyeball();
 eyeball_joint_outer();
 eyeball_joint_inner();
+
+// These need to be mirrored:
 lid_upper();
 lid_lower();
 hinge_knuckle_outer();
 hinge_knuckle_inner_top();
 hinge_knuckle_inner_bottom();
 //hinge_knuckle_inner();
-
 
 // ---------- details
 
@@ -113,9 +128,9 @@ module eyeball() {
         // joint
         rotate([0,0,90]) {
             translate([ball_inner_dia/2,0,0]) rotate([0,90,0])
-            cylinder(h=joint_arm_thick+ball_thick, r=rod_dia/2, center = true);
+            cylinder(h=joint_arm_thick+ball_thick, r=rod_loose_dia/2, center = true);
             translate([-ball_inner_dia/2,0,0]) rotate([0,90,0])
-            cylinder(h=joint_arm_thick+ball_thick, r=rod_dia/2, center = true);
+            cylinder(h=joint_arm_thick+ball_thick, r=rod_loose_dia/2, center = true);
         }
     }
 }
@@ -143,9 +158,9 @@ module eyeball_joint_outer() {
         }
 
         translate([joint_outer_r-joint_arm_thick/2,0,0]) rotate([0,90,0])
-        cylinder(h=joint_arm_thick+1, r=rod_dia/2, center = true);
+        cylinder(h=joint_arm_thick+1, r=rod_loose_dia/2, center = true);
         translate([-(joint_outer_r-joint_arm_thick/2),0,0]) rotate([0,90,0])
-        cylinder(h=joint_arm_thick+1, r=rod_dia/2, center = true);
+        cylinder(h=joint_arm_thick+1, r=rod_loose_dia/2, center = true);
 
         rotate([0,0,90]) {
             translate([joint_outer_r-lid_arm_thick+joint_arm_thick/2,0,0]) rotate([0,90,0])
@@ -162,6 +177,7 @@ module eyeball_joint_inner() {
     joint_inner_r=joint_outer_r-joint_arm_thick-joint_arm_thick/4-joint_arm_thick/4;
     joint_len=lid_arm_len;
 
+    rotate((1-assemble)*[-90,0,0])
     {
         translate([joint_inner_r,0,0])
         eyeball_joint_inner_arm();
@@ -214,8 +230,9 @@ module eyeball_joint_inner_arm() {
 }
 
 module lid_upper() {
-    rotate([90,-90,0])
-    rotate([0,-lids_open*45,0])
+    mirror(reflect*[0,1,0])
+    rotate(assemble*[90,-90,0])
+    rotate(assemble*[0,-lids_open*45,0])
     {
         difference() {
             sphere(r = lid_outer_dia/2);
@@ -263,8 +280,10 @@ module lid_upper() {
 }
 
 module lid_lower() {
-    rotate([90,-90,0])
-    rotate([0,lids_open*45,0])
+    mirror(reflect*[0,1,0])
+    rotate((1-assemble)*[0,180,0])
+    rotate(assemble*[90,-90,0])
+    rotate(assemble*[0,lids_open*45,0])
     {
         difference() {
             sphere(r = lid_outer_dia/2);
@@ -315,69 +334,78 @@ module lid_lower() {
 // ---------- Knuckles
 
 module hinge_knuckle_outer() {
-    translate([-lid_outer_dia/2-knuckle_depth/2,0,0])
-    difference() {
-        cube(size=[knuckle_depth,knuckle_height,knuckle_width], center = true);
-        translate([0,axel_dia/2,0])
-        rotate([0,90,0])
-        cylinder(h=knuckle_depth+epsilon, r=axel_dia/2+joint_gap, center = true);
+    mirror(reflect*[0,1,0])
+    rotate((1-assemble)*[0,-90,0])
+    translate(assemble*[-lid_outer_dia/2-knuckle_depth/2,0,0])
+    {
+        difference() {
+            cube(size=[knuckle_depth,knuckle_height,knuckle_width], center = true);
+            translate([0,axel_dia/2,0])
+            rotate([0,90,0])
+            cylinder(h=knuckle_depth+epsilon, r=axel_dia/2+joint_gap, center = true);
 
-        translate([0,-axel_dia/2,0])
-        rotate([0,90,0])
-        cylinder(h=knuckle_depth+epsilon, r=axel_dia/2+joint_gap, center = true);
-    }
+            translate([0,-axel_dia/2,0])
+            rotate([0,90,0])
+            cylinder(h=knuckle_depth+epsilon, r=axel_dia/2+joint_gap, center = true);
+        }
 
-    joint_outer_r=ball_dia/2-ball_thick-joint_arm_thick/2-joint_arm_thick/4-joint_gap;
-    joint_inner_r=joint_outer_r-joint_arm_thick-joint_arm_thick/4-joint_arm_thick/4;
-    placement=-lid_outer_dia/2-knuckle_depth/2;
+        joint_outer_r=ball_dia/2-ball_thick-joint_arm_thick/2-joint_arm_thick/4-joint_gap;
+        joint_inner_r=joint_outer_r-joint_arm_thick-joint_arm_thick/4-joint_arm_thick/4;
+        placement=0;
 
-    // Need to calc same z as inner joint:
-    ledge_size=hinge_arm_len-knuckle_width/2;
-    translate([placement,plate_thick/2,-knuckle_width/2-ledge_size/2])
-    cube(size=[knuckle_depth,plate_thick,ledge_size], center = true);
+        // Need to calc same z as inner joint:
+        ledge_size=hinge_arm_len-knuckle_width/2;
+        translate([placement,plate_thick/2,-knuckle_width/2-ledge_size/2])
+        cube(size=[knuckle_depth,plate_thick,ledge_size], center = true);
 
-    bolt_offset=bolt_head_dia/2-knuckle_depth/2;
+        bolt_offset=bolt_head_dia/2-knuckle_depth/2;
 
-    plat_len=bolt_to_edge+bolt_head_dia/2+plate_edge-knuckle_width/2;
-    armp=-knuckle_width/2-plat_len/2;
-    boltp=-plate_edge-bolt_to_edge;
-    height=joint_arm_thick;
+        plat_len=bolt_to_edge+bolt_head_dia/2+plate_edge-knuckle_width/2;
+        armp=-knuckle_width/2-plat_len/2;
+        boltp=-plate_edge-bolt_to_edge;
+        height=joint_arm_thick;
 
-    translate([placement,-height/2,armp])
-    difference() {
-        union() {
-            cube(size=[knuckle_depth,height,plat_len], center = true);
+        translate([placement,-height/2,armp])
+        difference() {
+            union() {
+                cube(size=[knuckle_depth,height,plat_len], center = true);
+                translate([bolt_offset,0,boltp-armp])
+                rotate([90,0,0])
+                cylinder(h=height, r=bolt_head_dia/2, center = true);
+            }
+            // Bolt hole:
             translate([bolt_offset,0,boltp-armp])
             rotate([90,0,0])
-            cylinder(h=height, r=bolt_head_dia/2, center = true);
+            cylinder(h=height+epsilon, r=bolt_dia/2, center = true);
         }
-        // Bolt hole:
-        translate([bolt_offset,0,boltp-armp])
-        rotate([90,0,0])
-        cylinder(h=height+epsilon, r=bolt_dia/2, center = true);
     }
 }
 
 module hinge_knuckle_inner_top() {
+    mirror(reflect*[0,1,0])
+    rotate((assemble-1)*[0,-90,0])
+    translate(assemble*[lid_outer_dia/2+knuckle_depth/2,0,0])
     difference() {
         hinge_knuckle_inner();
 
-        translate([lid_outer_dia/2+knuckle_depth/2,knuckle_height/2-axel_dia/2,0])
+        translate([0,knuckle_height/2-axel_dia/2,0])
         cube(size=[knuckle_depth*5,knuckle_height,knuckle_width*5], center = true);
     }
 }
 
 module hinge_knuckle_inner_bottom() {
+    mirror(reflect*[0,1,0])
+    rotate((assemble-1)*[0,-90,0])
+    translate(assemble*[lid_outer_dia/2+knuckle_depth/2,0,0])
     intersection() {
         hinge_knuckle_inner();
 
-        translate([lid_outer_dia/2+knuckle_depth/2,knuckle_height/2-axel_dia/2,0])
+        translate([0,knuckle_height/2-axel_dia/2,0])
         cube(size=[knuckle_depth*5,knuckle_height,knuckle_width*5], center = true);
     }
 }
 
 module hinge_knuckle_inner() {
-    translate([lid_outer_dia/2+knuckle_depth/2,0,0])
     difference() {
         cube(size=[knuckle_depth,knuckle_height,knuckle_width], center = true);
         translate([0,axel_dia/2,0])
@@ -393,7 +421,7 @@ module hinge_knuckle_inner() {
 
     joint_outer_r=ball_dia/2-ball_thick-joint_arm_thick/2-joint_arm_thick/4-joint_gap;
     joint_inner_r=joint_outer_r-joint_arm_thick-joint_arm_thick/4-joint_arm_thick/4;
-    placement=lid_outer_dia/2+knuckle_depth/2;
+    placement=0;
 
     // Need to calc same z as inner joint:
     ledge_size=hinge_arm_len-knuckle_width/2;
