@@ -25,7 +25,7 @@ slot_thickness=3;
 slot_length=30;
 
 bolt_to_edge=10;
-bolt_dia=5;
+bolt_dia=4;
 bolt_head_dia=8;
 
 separation=3;
@@ -42,6 +42,7 @@ axel_dia=5;
 // ----------
 
 $fn=100;
+epsilon=0.001;
 
 // ---------- features
 // Major aspects, calculated from parameters
@@ -56,57 +57,60 @@ bolt_inner=lid_outer_dia/2+knuckle_depth/2-bolt_head_dia/2+knuckle_depth/2;
 
 // ---------- build
 
+//platform();
 stands();
 
-difference() {
-    // Front is square, back is round;
-    union() {
-        circle(d=head_dia);
+module platform() {
+    difference() {
+        // Front is square, back is round;
+        union() {
+            circle(d=head_dia);
+            translate([-head_dia/4,0])
+            square(size=[head_dia/2,head_dia],center=true);
+        }
+
+        // Eyeball motors:
+        motor9g(eyeball_motor_pos, -eyeball_motor_space1, 90);
+        motor9g(eyeball_motor_pos,  eyeball_motor_space1, 90);
+
+        motor9g(eyeball_motor_pos, -eyeball_motor_space2, 90);
+        motor9g(eyeball_motor_pos,  eyeball_motor_space2, 90);
+
+        // TODO move out
+        // Eyelid motors:
+        motorMG995(eyelid_motor_pos, -eyelid_motor_space1, 90);
+        motorMG995(eyelid_motor_pos,  eyelid_motor_space1, 90);
+
+        motorMG995(eyelid_motor_pos, -eyelid_motor_space2, 90);
+        motorMG995(eyelid_motor_pos,  eyelid_motor_space2, 90);
+
+        // Stand:
+        stand_y=head_dia/2-stand_length2/2;
+        translate([-45,stand_y])
+        square(size=[slot_length,slot_thickness],center=true);
+        translate([-45,-stand_y])
+        square(size=[slot_length,slot_thickness],center=true);
+
+        translate([head_dia/2-stand_length2/2,0])
+        square(size=[slot_thickness,slot_length],center=true);
+
+        // Eye mount:
+        placement=head_dia/2+bolt_outer-2*bolt_dia;
+        translate([-head_dia/2,-placement]) {
+            eye_mount();
+        }
+        translate([-head_dia/2,placement]) {
+            mirror([0,1,0])
+            eye_mount();
+        }
+
+        // TODO RaspPi platform mount
+
         translate([-head_dia/4,0])
-        square(size=[head_dia/2,head_dia],center=true);
+        circle(d=bolt_dia);
+        translate([-head_dia/4+15,0])
+        circle(d=bolt_dia);
     }
-
-    // Eyeball motors:
-    motor9g(eyeball_motor_pos, -eyeball_motor_space1, 90);
-    motor9g(eyeball_motor_pos,  eyeball_motor_space1, 90);
-
-    motor9g(eyeball_motor_pos, -eyeball_motor_space2, 90);
-    motor9g(eyeball_motor_pos,  eyeball_motor_space2, 90);
-
-    // TODO move out
-    // Eyelid motors:
-    motorMG995(eyelid_motor_pos, -eyelid_motor_space1, 90);
-    motorMG995(eyelid_motor_pos,  eyelid_motor_space1, 90);
-
-    motorMG995(eyelid_motor_pos, -eyelid_motor_space2, 90);
-    motorMG995(eyelid_motor_pos,  eyelid_motor_space2, 90);
-
-    // Stand:
-    stand_y=head_dia/2-stand_length2/2;
-    translate([-45,stand_y])
-    square(size=[slot_length,slot_thickness],center=true);
-    translate([-45,-stand_y])
-    square(size=[slot_length,slot_thickness],center=true);
-
-    translate([head_dia/2-stand_length2/2,0])
-    square(size=[slot_thickness,slot_length],center=true);
-
-    // Eye mount:
-    placement=head_dia/2+bolt_outer-2*bolt_dia;
-    translate([-head_dia/2,-placement]) {
-        eye_mount();
-    }
-    translate([-head_dia/2,placement]) {
-        mirror([0,1,0])
-        eye_mount();
-    }
-
-    // TODO RaspPi platform mount
-
-    translate([-head_dia/4,0])
-    circle(d=bolt_dia);
-    translate([-head_dia/4+15,0])
-    circle(d=bolt_dia);
 }
 
 module eye_mount() {
@@ -128,11 +132,11 @@ module motor9g(x, y, r) {
     rotate([0,0,r]) {
         square(size=[12,24],center=true);
 
-        // TODO bolt holes
         bolt_dia=2;
-        translate([0,14])
+        spacing=27.8;
+        translate([0,spacing/2])
         circle(d=bolt_dia, center = true);
-        translate([0,-14])
+        translate([0,-spacing/2])
         circle(d=bolt_dia, center = true);
     }
 }
@@ -140,13 +144,18 @@ module motor9g(x, y, r) {
 module motorMG995(x, y, r) {
     translate([x,y])
     rotate([0,0,r]){
-        square(size=[20,41],center=true);
+        square(size=[20.5,41],center=true);
 
-        // TODO bolt holes
-        bolt_dia=2;
-        translate([0,23])
+        bolt_dia=3.7;
+        spacing_long=49;
+        spacing_side=10;
+        translate([spacing_side/2,spacing_long/2])
         circle(d=bolt_dia, center = true);
-        translate([0,-23])
+        translate([spacing_side/2,-spacing_long/2])
+        circle(d=bolt_dia, center = true);
+        translate([-spacing_side/2,spacing_long/2])
+        circle(d=bolt_dia, center = true);
+        translate([-spacing_side/2,-spacing_long/2])
         circle(d=bolt_dia, center = true);
     }
 }
@@ -176,10 +185,9 @@ module stand(tab) {
         } else {
             square(size=[stand_height,stand_length2],center=true);
         }
-        square(size=[stand_height,width],center=true);
 
         translate([stand_height/4,0])
-        square(size=[stand_height/2,slot_thickness],center=true);
+        square(size=[stand_height/2+epsilon,slot_thickness],center=true);
     }
 
 }
