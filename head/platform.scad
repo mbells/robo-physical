@@ -8,6 +8,7 @@
 // ---------- parameters ----------
 
 head_dia=170;
+sheet_thickness=3.2;
 
 stand_height=50;
 stand_length1=40;
@@ -21,7 +22,6 @@ eyeball_motor_space1=25;
 eyeball_motor_space2=45;
 eyeball_motor_pos=-35;
 
-slot_thickness=3;
 slot_length=30;
 
 bolt_to_edge=10;
@@ -57,7 +57,7 @@ bolt_inner=lid_outer_dia/2+knuckle_depth/2-bolt_head_dia/2+knuckle_depth/2;
 
 // ---------- build
 
-//platform();
+platform();
 stands();
 
 module platform() {
@@ -87,12 +87,12 @@ module platform() {
         // Stand:
         stand_y=head_dia/2-stand_length2/2;
         translate([-45,stand_y])
-        square(size=[slot_length,slot_thickness],center=true);
+        square(size=[slot_length,sheet_thickness],center=true);
         translate([-45,-stand_y])
-        square(size=[slot_length,slot_thickness],center=true);
+        square(size=[slot_length,sheet_thickness],center=true);
 
         translate([head_dia/2-stand_length2/2,0])
-        square(size=[slot_thickness,slot_length],center=true);
+        square(size=[sheet_thickness,slot_length],center=true);
 
         // Eye mount:
         placement=head_dia/2+bolt_outer-2*bolt_dia;
@@ -164,19 +164,20 @@ module motorMG995(x, y, r) {
 
 module stands() {
     translate([head_dia,0]) {
-        translate([0,-stand_length1/2-separation/2]) stand(true);
-        translate([0,stand_length2/2+separation/2]) stand(false);
-
-        offset=stand_height+slot_thickness+separation;
-        translate([offset,-stand_length1/2-separation/2]) stand(true);
-        translate([offset,stand_length2/2+separation/2]) stand(false);
+        offset=stand_height+sheet_thickness+separation;
+        for(i = [0 : 2]) {
+            translate([i*offset,0]) {
+                translate([0,-stand_length1/2-separation/2]) stand(true);
+                translate([0,stand_length2/2+separation/2]) stand(false);
+            }
+        }
     }
 }
 
 module stand(tab) {
     if(tab) {
-        translate([-stand_height/2,0])
-        square(size=[slot_thickness,slot_length],center=true);
+        translate([-stand_height/2-sheet_thickness/2,0])
+        square(size=[sheet_thickness,slot_length],center=true);
     }
     difference()
     {
@@ -187,7 +188,6 @@ module stand(tab) {
         }
 
         translate([stand_height/4,0])
-        square(size=[stand_height/2+epsilon,slot_thickness],center=true);
+        square(size=[stand_height/2+epsilon,sheet_thickness],center=true);
     }
-
 }
