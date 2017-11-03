@@ -177,7 +177,7 @@ module eyeball_joint_inner() {
     joint_inner_r=joint_outer_r-joint_arm_thick-joint_arm_thick/4-joint_arm_thick/4;
     joint_len=lid_arm_len;
 
-    rotate((1-assemble)*[-90,0,0])
+    rotate((1-assemble)*[90,0,0])
     {
         translate([joint_inner_r,0,0])
         eyeball_joint_inner_arm();
@@ -187,28 +187,13 @@ module eyeball_joint_inner() {
         translate([0,0,-hinge_arm_len+axel_dia/2])
         cube(size=[joint_inner_r*2+lid_arm_thick,axel_dia,axel_dia], center = true);
 
+
         // Mounting plate:
-        backset=bolt_to_edge/2+axel_dia/2;
-        translate([0,-axel_dia/2,-hinge_arm_len-bolt_to_edge+backset]) {
+        translate([0,-axel_dia/2,-hinge_arm_len+axel_dia-plate_len/2]) {
             difference() {
-                union() {
-                    translate([0,0,-backset])
-                    rotate([90,0,0])
-                    cylinder(h=axel_dia*.8, r=bolt_head_dia/2, center = true);
-                    difference() {
-                        cube(size=[joint_inner_r*2+lid_arm_thick,axel_dia,plate_len], center = true);
-
-                        translate([0,-axel_dia,plate_len/2-lid_arm_thick])
-                        rotate([-45,0,0])
-                        cube(size=[joint_inner_r*2+lid_arm_thick+epsilon,axel_dia*2,plate_len], center = true);
-
-                        translate([0,-lid_arm_thick,-lid_arm_thick])
-                        rotate([10,0,0])
-                        cube(size=[joint_inner_r*2+lid_arm_thick+epsilon,axel_dia,plate_len], center = true);
-                    }
-                }
+                cube(size=[joint_inner_r*2+lid_arm_thick,axel_dia,plate_len], center = true);
                 // Bolt hole:
-                translate([0,0,-backset])
+                translate([0,0,axel_dia-plate_len/2])
                 rotate([90,0,0])
                 cylinder(h=lid_arm_thick*2+epsilon, r=bolt_dia/2, center = true);
             }
@@ -221,11 +206,16 @@ module eyeball_joint_inner_arm() {
         union() {
             rotate([0,90,0])
             cylinder(h=lid_arm_thick, r=axel_dia/2, center = true);
-            translate([0,0,-joint_len/2])
-            cube(size=[lid_arm_thick,axel_dia,hinge_arm_len], center = true);
+            translate([0,-axel_dia/4,-joint_len/2])
+            cube(size=[lid_arm_thick,axel_dia*1.5,hinge_arm_len], center = true);
         }
         rotate([0,90,0])
         cylinder(h=lid_arm_thick+epsilon, r=rod_dia/2, center = true);
+
+        translate([0,-axel_dia/2,0])
+        rotate([-60,0,0])
+        translate([0,-axel_dia*1.5/2,-hinge_arm_len/2])
+        cube(size=[lid_arm_thick+epsilon,axel_dia*1.5,hinge_arm_len], center = true);
     }
 }
 
