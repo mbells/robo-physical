@@ -222,7 +222,9 @@ module eyeball_joint_inner_arm() {
 module lid_upper() {
     mirror(reflect*[0,1,0])
     rotate(assemble*[90,-90,0])
+    translate([0,0,axel_dia/2])
     rotate(assemble*[0,-lids_open*45,0])
+    translate([0,0,-axel_dia/2])
     {
         difference() {
             sphere(r = lid_outer_dia/2);
@@ -273,7 +275,9 @@ module lid_lower() {
     mirror(reflect*[0,1,0])
     rotate((1-assemble)*[0,180,0])
     rotate(assemble*[90,-90,0])
+    translate([0,0,-axel_dia/2])
     rotate(assemble*[0,lids_open*45,0])
+    translate([0,0,axel_dia/2])
     {
         difference() {
             sphere(r = lid_outer_dia/2);
